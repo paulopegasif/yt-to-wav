@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <title>YouTube to WAV</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 text-gray-800 flex items-center justify-center min-h-screen">
+  <div class="bg-white shadow-lg rounded-xl p-8 w-full max-w-md">
+
+    <h1 id="title" class="text-2xl font-semibold mb-4 text-gray-900">🎵 Baixe Áudio do YouTube em WAV</h1>
+    <p id="description" class="text-sm text-gray-500 mb-6">Cole o link de um vídeo do YouTube para converter e baixar o áudio em alta qualidade (WAV).</p>
+
+    <form id="download-form" class="flex flex-col space-y-4">
+      <input type="text" id="url" placeholder="https://youtube.com/..." class="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+      <button type="submit" id="download-btn" class="bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition">
+        🎧 Converter e Baixar
+      </button>
+    </form>
+
+    <!-- Seletor de idioma (reposicionado) -->
+    <div class="flex justify-center space-x-4 mt-6">
+      <button class="lang-btn p-2 text-2xl rounded-lg border border-gray-300 hover:border-indigo-600 transition" data-lang="pt">🇧🇷</button>
+      <button class="lang-btn p-2 text-2xl rounded-lg border border-gray-300 hover:border-indigo-600 transition" data-lang="en">🇺🇸</button>
+      <button class="lang-btn p-2 text-2xl rounded-lg border border-gray-300 hover:border-indigo-600 transition" data-lang="es">🇪🇸</button>
+    </div>
+
+    <div id="progress-bar" class="hidden mt-6">
+      <div class="w-full bg-gray-200 rounded-full h-2">
+        <div class="bg-indigo-600 h-2 rounded-full animate-pulse" style="width: 100%;"></div>
+      </div>
+      <p id="progress-text" class="text-center text-gray-500 text-sm mt-2">Convertendo e preparando o download...</p>
+    </div>
+
+    <p id="status" class="text-sm text-center text-gray-600 mt-4"></p>
+  </div>
+
+  <script>
+    const translations = {
+      pt: {
+        title: "🎵 Baixe Áudio do YouTube em WAV",
+        description: "Cole o link de um vídeo do YouTube para converter e baixar o áudio em alta qualidade (WAV).",
+        button: "🎧 Converter e Baixar",
+        progress: "Convertendo e preparando o download...",
+        success: "✅ Download concluído!",
+        error: "❌ Erro:"
+      },
+      en: {
+        title: "🎵 Download YouTube Audio in WAV",
+        description: "Paste a YouTube video link to convert and download the audio in high quality (WAV).",
+        button: "🎧 Convert and Download",
+        progress: "Converting and preparing the download...",
+        success: "✅ Download complete!",
+        error: "❌ Error:"
+      },
+      es: {
+        title: "🎵 Descarga Audio de YouTube en WAV",
+        description: "Pega el enlace de un video de YouTube para convertir y descargar el audio en alta calidad (WAV).",
+        button: "🎧 Convertir y Descargar",
+        progress: "Convirtiendo y preparando la descarga...",
+        success: "✅ ¡Descarga completa!",
+        error: "❌ Error:"
+      }
+    };
+
+    let currentLang = "pt";
+
+    // Função para trocar idioma
+    const langButtons = document.querySelectorAll('.lang-btn');
+    langButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        currentLang = btn.dataset.lang;
+        updateTexts();
+        updateActiveLang();
+      });
+    });
+
+    function updateTexts() {
+      const lang = translations[currentLang];
+      document.getElementById('title').textContent = lang.title;
+      document.getElementById('description').textContent = lang.description;
+      document.getElementById('download-btn').textContent = lang.button;
+      document.getElementById('progress-text').textContent = lang.progress;
+    }
+
+    function updateActiveLang() {
+      langButtons.forEach(btn => {
+        btn.classList.remove('bg-indigo-100', 'border-indigo-600');
+        if (btn.dataset.lang === currentLang) {
+          btn.classList.add('bg-indigo-100', 'border-indigo-600');
+        }
+      });
+    }
+
+    updateTexts();  // Inicializa com o idioma padrão (pt)
+    updateActiveLang();  // Marca o botão ativo
+
+    const form = document.getElementById('download-form');
+    const status = document.getElementById('status');
+    const progressBar = document.getElementById('progress-bar');
+    const progressText = document.getElementById('progress-text');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      status.textContent = '';
+      progressBar.classList.remove('hidden');
+      progressText.textContent = translations[currentLang].progress;
+
+      const url = document.getElementById('url').value;
+
+      try {
+        const response = await fetch('http://localhost:8000/download', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url })
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.detail);
+        }
+
+        const blob = await response.blob();
+        const contentDisposition = response.headers.get('Content-Disposition');
+        let filename = 'audio.wav';
+
+        if (contentDisposition && contentDisposition.includes('filename=')) {
+          filename = contentDisposition.split('filename=')[1].replace(/["']/g, '');
+        }
+
+        const link = document.createElement('a');
+        link.href = window.URL.createObjectURL(blob);
+        link.download = filename;
+        link.click();
+        status.textContent = translations[currentLang].success;
+      } catch (error) {
+        status.textContent = `${translations[currentLang].error} ${error.message}`;
+      } finally {
+        progressBar.classList.add('hidden');
+      }
+    });
+  </script>
+</body>
+</html>
