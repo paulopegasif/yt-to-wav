@@ -139,7 +139,7 @@
       const url = document.getElementById('url').value;
 
       try {
-        const response = await fetch('https://yt-to-wav-backend.onrender.com', {
+        const response = await fetch('https://yt-to-wav-backend.onrender.com/download', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ url })
