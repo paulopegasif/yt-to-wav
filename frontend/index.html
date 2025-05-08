@@ -8,6 +8,9 @@
 </head>
 <body class="bg-gray-50 text-gray-800 flex items-center justify-center min-h-screen relative overflow-hidden">
 
+  <!-- Container de Notificações -->
+  <div id="notifications" class="fixed top-4 right-4 z-50 space-y-2"></div>
+
   <!-- Ondas animadas -->
   <div class="fixed bottom-0 left-0 w-full z-0 overflow-hidden leading-none">
     <svg class="relative block w-full h-40" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
@@ -161,7 +164,7 @@
       const url = document.getElementById('url').value;
 
       try {
-        const response = await fetch('yt-to-wav-production.up.railway.app/download', {
+        const response = await fetch('https://yt-to-wav-production.up.railway.app/download', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ url })
