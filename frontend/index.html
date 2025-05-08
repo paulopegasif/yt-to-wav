@@ -161,7 +161,7 @@
       const url = document.getElementById('url').value;
 
       try {
-        const response = await fetch('https://yt-to-wav-backend.onrender.com/download', {
+        const response = await fetch('yt-to-wav-production.up.railway.app/download', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ url })
