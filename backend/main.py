@@ -60,7 +60,8 @@ async def download_audio(req: Request):
             return Response(content, media_type="audio/wav", headers=headers)
     except subprocess.TimeoutExpired:
         raise HTTPException(status_code=408, detail="Tempo excedido ao baixar o vídeo")
-    except subprocess.CalledProcessError:
+    except subprocess.CalledProcessError as e:
+        print("Erro no subprocess: ", e)
         raise HTTPException(status_code=500, detail="Erro ao processar o vídeo")
     finally:
         # Limpeza do arquivo temporário
