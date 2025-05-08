@@ -105,6 +105,28 @@
       });
     });
 
+    function showNotification(message, type = 'success') {
+      const notification = document.createElement('div');
+      notification.className = `rounded-xl px-4 py-3 text-sm shadow-lg backdrop-blur-md bg-white/30 text-gray-900 border flex items-start space-x-2 animate-slide-in opacity-0 transition-opacity duration-300`
+
+      notification.style.borderLeft = `4px solid ${type === 'success' ? '#22c55e' : '#ef4444'}`;
+
+      notification.innerHTML = `
+        <div>
+          <strong class="block font-medium">${type === 'success' ? 'Sucesso' : 'Erro'}</strong>
+          <span>${message}</span>
+        </div>
+      `;
+
+      document.getElementById('notifications').appendChild(notification);
+      setTimeout(() => notification.classList.remove('opacity-0'), 50);
+
+      setTimeout(() => {
+        notification.classList.add('opacity-0');
+        setTimeout(() => notification.remove(), 300);
+      }, 5000);
+    }
+
     function updateTexts() {
       const lang = translations[currentLang];
       document.getElementById('title').textContent = lang.title;
@@ -150,6 +172,8 @@
           throw new Error(errorData.detail);
         }
 
+        showNotification("📥 Baixando o áudio...", "success");
+
         const blob = await response.blob();
         const contentDisposition = response.headers.get('Content-Disposition');
         let filename = 'audio.wav';
@@ -162,13 +186,31 @@
         link.href = window.URL.createObjectURL(blob);
         link.download = filename;
         link.click();
+        showNotification("✅ Download concluído!", "success");
         status.textContent = translations[currentLang].success;
       } catch (error) {
+        showNotification(`${translations[currentLang].error} ${error.message}`, "error");
         status.textContent = `${translations[currentLang].error} ${error.message}`;
       } finally {
         progressBar.classList.add('hidden');
       }
     });
   </script>
+    <style>
+      @keyframes slide-in {
+        from {
+          transform: translateX(20px);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+  
+      .animate-slide-in {
+        animation: slide-in 0.3s ease-out forwards;
+      }
+    </style>
 </body>
 </html>

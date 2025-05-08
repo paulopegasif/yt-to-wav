@@ -62,3 +62,11 @@ async def download_audio(req: Request):
         raise HTTPException(status_code=408, detail="Tempo excedido ao baixar o vídeo")
     except subprocess.CalledProcessError:
         raise HTTPException(status_code=500, detail="Erro ao processar o vídeo")
+    
+@app.get("/")
+def root():
+    return {"message": "YT-to-WAV backend is live"}
+
+@app.get("/health")
+def health():
+    return {"status": "ok"}
