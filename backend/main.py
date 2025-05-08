@@ -62,6 +62,10 @@ async def download_audio(req: Request):
         raise HTTPException(status_code=408, detail="Tempo excedido ao baixar o vídeo")
     except subprocess.CalledProcessError:
         raise HTTPException(status_code=500, detail="Erro ao processar o vídeo")
+    finally:
+        # Limpeza do arquivo temporário
+        if os.path.exists(output_path):
+            os.remove(output_path)
     
 @app.get("/")
 def root():
